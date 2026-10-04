@@ -1,4 +1,4 @@
-const { combineStats, removeUpgrades, makeAuto, makeBird, makeFlank, makeGuard, makeOver, makeRadialAuto, weaponArray, weaponMirror, weaponStack } = require("../../facilitators.js");
+const { combineStats, removeUpgrades, makeAura, makeAuto, makeBird, makeFlank, makeGuard, makeOver, makeRadialAuto, weaponArray, weaponMirror, weaponStack } = require("../../facilitators.js");
 const { base, dfltskl, smshskl, statnames } = require("../../constants.js");
 const g = require("../../gunvals.js");
 const preset = require("../../presets.js");
@@ -20,8 +20,27 @@ Class.basic = {
             }
         }
     ],
-    UPGRADES_TIER_1: ["twin", "sniper", "machineGun", "flankGuard", "director", "pounder", "trapper", "desmos"],
+    UPGRADES_TIER_1: ["twin", "sniper", "machineGun", "flankGuard", "director", "pounder", "trapper", "desmos", "furnace"],
     UPGRADES_TIER_2: ["smasher"]
+};
+
+// Furnace Aura
+Class.furnaceAura = makeAura(0.15, 1.25, 0.3, "orange");
+Class.furnace = {
+    PARENT: "genericTank",
+    LABEL: "Furnace",
+    DANGER: 5,
+    BODY: {
+        SPEED: 0.95,
+        FOV: 1.1
+    },
+    GUNS: Class.basic.GUNS,
+    TURRETS: [
+        {
+            POSITION: [14, 0, 0, 0, 0, 1],
+            TYPE: "furnaceAura"
+        }
+    ]
 };
 
 // Tier 1 (Level 15)
