@@ -25,13 +25,13 @@ Class.basic = {
 };
 
 // Furnace Aura
-Class.furnaceAura = makeAura(0.15, 1.25, 0.3, "orange");
+Class.furnaceAura = makeAura(0.15, 6, 0.3, "orange");
 Class.furnace = {
     PARENT: "genericTank",
     LABEL: "Furnace",
     DANGER: 5,
     BODY: {
-        SPEED: 0.95,
+        SPEED: 1,
         FOV: 1.1
     },
     GUNS: Class.basic.GUNS,
