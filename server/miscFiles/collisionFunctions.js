@@ -4,15 +4,28 @@ const furnaceHeatMultiplier = (aura, target) => {
     const now = Date.now();
     aura.furnaceHeat ??= new Map();
 
+    // Heat keeps building while the target remains inside the aura.
+    // If it stops colliding for a short time, it starts cooling back down.
     const previous = aura.furnaceHeat.get(target.id);
     const heat = previous && now - previous.lastHit <= 200
-        ? Math.min(previous.heat + 1, 30)
+        ? previous.heat + 1
         : 1;
 
     aura.furnaceHeat.set(target.id, { heat, lastHit: now });
 
-    // Exponential heating: every collision raises the damage by 12%.
-    return Math.pow(1.12, heat);
+    const damageMultiplier = Math.pow(1.05, heat);
+
+    // The Furnace starts at full speed, then slows down gradually as the
+    // aura gets hotter. This prevents the tank from becoming too fast
+    // while still keeping it mobile at low heat.
+    const furnace = aura.master;
+    if (furnace) {
+        furnace.furnaceBaseMaxSpeed ??= furnace.maxSpeed;
+        const speedMultiplier = Math.max(0.55, 1 / (1 + 0.025 * (heat - 1)));
+        furnace.maxSpeed = furnace.furnaceBaseMaxSpeed * speedMultiplier;
+    }
+
+    return damageMultiplier;
 };
 
 function simplecollide(my, n) {
