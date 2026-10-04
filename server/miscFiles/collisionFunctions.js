@@ -1,3 +1,20 @@
+const furnaceHeatMultiplier = (aura, target) => {
+    if (aura.master?.label !== "Furnace") return 1;
+
+    const now = Date.now();
+    aura.furnaceHeat ??= new Map();
+
+    const previous = aura.furnaceHeat.get(target.id);
+    const heat = previous && now - previous.lastHit <= 200
+        ? Math.min(previous.heat + 1, 30)
+        : 1;
+
+    aura.furnaceHeat.set(target.id, { heat, lastHit: now });
+
+    // Exponential heating: every collision raises the damage by 12%.
+    return Math.pow(1.12, heat);
+};
+
 function simplecollide(my, n) {
     // Cache values to avoid redundant calculations
     const dx = my.x - n.x, dy = my.y - n.y;
@@ -255,6 +272,14 @@ function advancedcollide(my, n, doDamage, doInelastic, nIsFirmCollide = false) {
                     _me: Config.damage_multiplier * my.damage * (1 + resistDiff) * (1 + n.heteroMultiplier  * (my.settings.damageClass === n.settings.damageClass)) * ((my.settings.buffVsFood && n.settings.damageType === 1) ? 3 : 1) * my.damageMultiplier() * Math.min(2, Math.max(speedFactor._me, 1) * speedFactor._me),
                     _n:  Config.damage_multiplier * n.damage  * (1 - resistDiff) * (1 + my.heteroMultiplier * (my.settings.damageClass === n.settings.damageClass)) * ((n.settings.buffVsFood && my.settings.damageType === 1) ? 3 : 1) * n.damageMultiplier()  * Math.min(2, Math.max(speedFactor._n, 1) * speedFactor._n)
                 };
+            // Furnace: targets heat up while they remain inside the aura.
+            if (my.type === "aura" && n.team !== my.team && n.type !== "bullet" && n.type !== "drone" && n.type !== "swarm" && n.type !== "trap" && n.type !== "wall") {
+                damage._me *= furnaceHeatMultiplier(my, n);
+            }
+            if (n.type === "aura" && my.team !== n.team && my.type !== "bullet" && my.type !== "drone" && my.type !== "swarm" && my.type !== "trap" && my.type !== "wall") {
+                damage._n *= furnaceHeatMultiplier(n, my);
+            }
+
             // Advanced damage calculations
             if (my.settings.ratioEffects) {
                 damage._me *= Math.min(1, Math.pow(Math.max(my.health.ratio, my.shield.ratio), 1 / my.penetration));
