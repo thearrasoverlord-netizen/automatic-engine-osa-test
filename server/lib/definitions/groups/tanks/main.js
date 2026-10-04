@@ -25,7 +25,7 @@ Class.basic = {
 };
 
 // Furnace Aura
-Class.furnaceAura = makeAura(0.15, 6, 0.3, "orange");
+Class.furnaceAura = makeAura(0.15, 4.2, 0.3, "orange");
 Class.furnace = {
     PARENT: "genericTank",
     LABEL: "Furnace",
